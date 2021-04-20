@@ -1,3 +1,5 @@
+// シェーダーを扱うための構造体
+
 use cgmath::Array;
 use cgmath::Matrix;
 use gl;
@@ -45,8 +47,16 @@ impl Shader {
         // create cstring
         let cstr_vertex_code = CString::new(vertex_code.as_bytes()).unwrap();
         let cstr_fragment_code = CString::new(fragment_code.as_bytes()).unwrap();
-
+        // OpenGLを直接叩くので unsafe
         unsafe {
+            /*
+                シェーダーを作っていく
+                gl::CreateShader()  でシェーダーを生成
+                gl::ShaderSource()  でソースコードをセット
+                gl::CompileShader() でシェーダーをコンパイル
+                shader.check_compile_errors() でコンパイルエラーの確認
+            */
+
             // vertex shader
             let vertex = gl::CreateShader(gl::VERTEX_SHADER);
             gl::ShaderSource(vertex, 1, &cstr_vertex_code.as_ptr(), ptr::null());
@@ -59,14 +69,20 @@ impl Shader {
             gl::CompileShader(fragment);
             shader.check_compile_errors(fragment, "FRAGMENT");
 
-            // shader program
+            /*
+                シェーダープログラムを生成する
+                gl::CreateProgram() でプログラムを作成
+                gl::AttachShader()  でvertex, fragmentシェーダーをアタッチ
+                gl::LinkProgran()   でシェーダーを実行可能な形式に生成
+                shader.check_compile_errors() でエラーの確認を行う
+            */
             let id = gl::CreateProgram();
             gl::AttachShader(id, vertex);
             gl::AttachShader(id, fragment);
             gl::LinkProgram(id);
             shader.check_compile_errors(id, "PROGRAM");
 
-            // delete shader
+            // 使わなくなったシェーダーを削除
             gl::DeleteShader(vertex);
             gl::DeleteShader(fragment);
 

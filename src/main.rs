@@ -51,6 +51,7 @@ fn main() {
     let _gl_context = window.gl_create_context().unwrap();
     gl::load_with(|s| video_subsystem.gl_get_proc_address(s) as _);
 
+    // シェーダーの読み込み
     let shader = Shader::new("rsc/shader/shader.vs", "rsc/shader/shader.fs");
 
     // set buffer

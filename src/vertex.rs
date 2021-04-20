@@ -1,3 +1,5 @@
+// VAOとVBOを扱う構造体
+
 use std::mem;
 use std::os::raw::c_void;
 
@@ -11,27 +13,30 @@ pub struct Vertex {
 
 impl Vertex {
     pub fn new(
-        size: GLsizeiptr,
-        data: *const c_void,
-        usage: GLenum,
-        attribute_type_vec: std::vec::Vec<GLenum>,
-        attribute_size_vec: std::vec::Vec<GLint>,
-        stride: GLsizei,
-        vertex_num: i32,
+        size: GLsizeiptr,                          // 頂点データのデータサイズ
+        data: *const c_void,                       // 頂点データのポインタ
+        usage: GLenum,                             // アクセス頻度を表す定数
+        attribute_type_vec: std::vec::Vec<GLenum>, // 各頂点の属性のデータ型のvector
+        attribute_size_vec: std::vec::Vec<GLint>,  // 各頂点の属性のデータサイズのvector
+        stride: GLsizei,                           // 各頂点データの属性数
+        vertex_num: i32,                           // 頂点数
     ) -> Vertex {
+        //IDを格納する変数の宣言
+        //本体ではなく、IDを格納する
         let mut vao = 0;
         let mut vbo = 0;
 
         unsafe {
-            // create vertex array object and vertex buffer object
+            // GPU上にVAOとVBOを確保する
             gl::GenVertexArrays(1, &mut vao);
             gl::GenBuffers(1, &mut vbo);
 
-            // bind buffer
+            // 使用するVAOとVBOを指定する
             gl::BindVertexArray(vao);
             gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
             gl::BufferData(gl::ARRAY_BUFFER, size, data, usage);
 
+            // VAOの設定
             let mut offset = 0;
             for i in 0..attribute_type_vec.len() {
                 gl::EnableVertexAttribArray(i as u32);
@@ -46,7 +51,7 @@ impl Vertex {
                 offset += attribute_size_vec[i] as usize;
             }
 
-            // unbind
+            // VAOとVBOの指定を解除1
             gl::BindBuffer(gl::ARRAY_BUFFER, 0);
             gl::BindVertexArray(0);
         }
